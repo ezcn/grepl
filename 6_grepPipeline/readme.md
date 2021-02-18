@@ -1,3 +1,14 @@
+#### Required tools and programming language
+- bwa (http://bio-bwa.sourceforge.net/bwa.shtml)
+- sambamba (https://lomereiter.github.io/sambamba/docs/sambamba-view.html)
+- freebayes (https://github.com/freebayes/freebayes)
+- samtools/htslib (https://github.com/samtools/htslib)
+- bcftools(http://samtools.github.io/bcftools/bcftools.html)
+- Vt (https://genome.sph.umich.edu/wiki/Vt)
+- vep (https://www.ensembl.org/info/docs/tools/vep/index.html)
+- vcftools (https://vcftools.github.io/index.html)
+- Python3
+- R
 #### 1. Align reads to reference genome 
 ```
 bwa mem -t 24 -R "@RG\tID:$id\tSM:$id" GRCh38.fa sample_R1.fastq.gz sample_R2.fastq.gz | samtools view -b - > sample.raw.bam && touch sample.align_ok
