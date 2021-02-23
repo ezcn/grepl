@@ -43,7 +43,7 @@ bcftools filter -i "QUAL>20"  sample.$chr.fb.vcf.gz -O z -o sample.$chr.fb.filte
 vt normalize -n -r GRCh38.fa sample.$chr.filtered.fb.vcf.gz > sample.$chr.fb.norm.vcf && touch sample.$chr_norm_ok
 ```
 - bgzip and tabix
--decompose normalized vcf
+- decompose normalized vcf
 ```
 vt  decompose_blocksub sample.$chr.fb.norm.vcf.gz > sample.$chr.fb.decomp.vcf && touch sample.$chr_decomp_ok
 ```
