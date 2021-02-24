@@ -91,11 +91,11 @@ python3 /grepPipeline/scr/grep.csq.sql.py -db samples.chr22.db -i vep/samples.ch
 #### 6. Extract individual's allele count from vcf 
 1. Extract counts with vcftools 
 ```
-vcftools --gzvcf all.sample.chrx.vcf.gz --out $(chr)/$(id).$(chr)_counts  --counts --indv $(id)
+vcftools --gzvcf samples.chr22.vcf.gz --out $(chr)/$(id).chr22_counts  --counts --indv $(id)
 ```
 2. Change file formatting with `altCounts.py`
 ```
-python3 grepPipeline/scr/altCounts.py -i /$(chr)/$(id).$(chr)_counts.frq.count -id $(id)
+python3 [altCounts.py](https://github.com/ezcn/grep/tree/master/6_grepPipeline/scr/altCounts.py) -i /$(chr)/$(id).$(chr)_counts.frq.count -id $(id)
 ```
 
 #### 7. Filter variable sites with [grep.filter.all.slq.py](https://github.com/ezcn/grep/tree/master/grepPipeline/scr/grep.filter.all.slq.py)`
