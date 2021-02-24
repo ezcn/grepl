@@ -11,7 +11,7 @@
 - R
 #### 1. Align reads to reference genome 
 ```
-bwa mem -t 24 -R "@RG\tID:$id\tSM:$id" GRCh38.fa sample_R1.fastq.gz sample_R2.fastq.gz | samtools view -b - > sample.raw.bam && touch sample.align_ok
+bwa mem -t 24 -R "@RG\tID:$id\tSM:$id" reference.GRCh38.fa sample_R1.fastq.gz sample_R2.fastq.gz | samtools view -b - > sample.raw.bam && touch sample.align_ok
 ```
 - sort bed file
 
@@ -24,7 +24,7 @@ sambamba markdup -t 8 --tmpdir ~/tmp --overflow-list-size 500000 sample.raw.sort
 ```
 #### 2. Variant Calling by sample and chromosome
 ```
-freebayes -f GRCh38.fa -r $chr -g 500 -b sample.bam > sample.$chr.fb.vcf && touch sample.$chr.fb_ok
+freebayes -f reference.GRCh38.fa -r $chr -g 500 -b sample.bam > sample.$chr.fb.vcf && touch sample.$chr.fb_ok
 ```
 -bgzip and tabix
 ```
@@ -51,7 +51,7 @@ vt  decompose_blocksub sample.$chr.fb.norm.vcf.gz > sample.$chr.fb.decomp.vcf &&
 
 #### 3. Merge all samples
 ```
-bcftools merge -O z -0 -o allsamples.decomp.$chr.vcf.gz sample1.$chr.fb.decomp.vcf.gz  sample2.$chr.fb.decomp.vcf.gz sample3.$chr.fb.decomp.vcf.gz sampleX.$chr.fb.decomp.vcf.gz 
+bcftools merge -O z -0 -o samples.vcf.gz sample1.$chr.fb.decomp.vcf.gz  sample2.$chr.fb.decomp.vcf.gz sample3.$chr.fb.decomp.vcf.gz sampleX.$chr.fb.decomp.vcf.gz 
 ```
 - bgzip and tabix
 
