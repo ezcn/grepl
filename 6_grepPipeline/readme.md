@@ -51,15 +51,15 @@ vt  decompose_blocksub sample.$chr.fb.norm.vcf.gz > sample.$chr.fb.decomp.vcf &&
 
 #### 3. Merge all samples
 ```
-bcftools merge -O z -0 -o samples.vcf.gz sample1.$chr.fb.decomp.vcf.gz  sample2.$chr.fb.decomp.vcf.gz sample3.$chr.fb.decomp.vcf.gz sampleX.$chr.fb.decomp.vcf.gz 
+bcftools merge -O z -0 -o testdata/sam/samples.chr22.vcf.gz sample1.$chr.fb.decomp.vcf.gz  sample2.$chr.fb.decomp.vcf.gz sample3.$chr.fb.decomp.vcf.gz sampleX.$chr.fb.decomp.vcf.gz 
 ```
 - bgzip and tabix
 
 #### 4.  Annotate variants using `V.E.P`
 merged vcf per chromosome. output is a table
 
-allsamples.$chr.vcf -> allsamples.$chr.vep.tsv
-all.control.chrx.vcf -> allcontrols.$chr.vep.tsv  
+testdata/sam/samples.chr22.vcf.gz -> testdata/sam/samples.chr22.vep.tsv
+testdata/con/controls.chr22.vcf -> testdata/con/controls.chr22.vep.tsv  
 ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/HGDP/data/
 
 ```
@@ -70,19 +70,25 @@ vep --af_1kg --af_gnomad --appris --biotype --buffer_size 5000 --check_existing 
 for i in {1..22} X ; do grep -v "##" ${i}.vep.tsv > ${i}.vep.noheader.tsv; done
 for i in {1..22} X; do sed -i '/Uploaded_variatio/s/^#//g' ${i}.vep.noheader.tsv ; done
 
-#### 5. Format data base files per chromosome 
-- merge gene lists: merge_allGenes.py  
-Input gene list: tab-delimited two column file with ENSGENEID, category. Genes in more than one category can be repeated 
-Output: merged file 
-- fathmm 
-
-#### 6. Parsing VEP annotations with [grep.csq.sql.py](https://github.com/ezcn/grep/tree/master/grepPipeline/scr/grep.csq.sql.py)` 
+#### 5. Parsing VEP annotations with [grep.csq.sql.py](https://github.com/ezcn/grep/tree/master/grepPipeline/scr/grep.csq.sql.py)` 
  per chromosome
+ ```
+ Options :
+ -db = path to new sql db
+ -i = path to input vep table file
+ -g = path to gene list file
+ -pli = path to pLI score table
+ -fathmmcoding = path to fathmm score file for coding regions
+ -fathmmnc = path to fathmm score file for non-coding regions
+ -o = path to output file
+ ```
+ 
 ```
-python3 /grepPipeline/scr/grep.csq.sql.py -db /db/sample.chrx.db -i vep/all.sample.chrx.vep.tsv -g testdata/db/all_geneList.tsv -pli testdata/db/pLIscore.tsv -fathmmcoding /lustre/home/enza/fathmm_database/coding/fathmm_xf_coding.$(chr).tsv -fathmmnc /lustre/home/enza/fathmm_database/noncoding/fathmm_xf_noncoding.$(chr).tsv -o /lustre/home/enza/grep/csq/all.sample.chrx.sql.csq
+command line example
+python3 /grepPipeline/scr/grep.csq.sql.py -db samples.chr22.db -i vep/samples.chr22.vep.tsv -g testdata/db/all_geneList.tsv -pli testdata/db/pLIscore.tsv -fathmmcoding testdata/db/fathmm_xf_coding.chr22.tsv -fathmmnc testdata/db/fathmm_xf_noncoding.$(chr).tsv -o samples.chr22.sql.csq
 ```
 
-#### 7. Extract individual's allele count from vcf 
+#### 6. Extract individual's allele count from vcf 
 1. Extract counts with vcftools 
 ```
 vcftools --gzvcf all.sample.chrx.vcf.gz --out $(chr)/$(id).$(chr)_counts  --counts --indv $(id)
@@ -92,14 +98,14 @@ vcftools --gzvcf all.sample.chrx.vcf.gz --out $(chr)/$(id).$(chr)_counts  --coun
 python3 grepPipeline/scr/altCounts.py -i /$(chr)/$(id).$(chr)_counts.frq.count -id $(id)
 ```
 
-#### 8. Filter variable sites with [grep.filter.all.slq.py](https://github.com/ezcn/grep/tree/master/grepPipeline/scr/grep.filter.all.slq.py)`
+#### 7. Filter variable sites with [grep.filter.all.slq.py](https://github.com/ezcn/grep/tree/master/grepPipeline/scr/grep.filter.all.slq.py)`
 per chromosome 
 ```
 python3 grep.filter.all.slq.py -db /control/db/hgdp.$(chr).full.db -dbS /samples/db/allGrep.$(chr).db -cl control.list.txt -sl samples.list.txt -ff 0.01 -f 0.05 -type Transcript -r false -pli 0.7 -cadd 0.5 -g 2 -n 10 -i 100 -pathTodirCtrl /control/alleleCount/$(chr) -ctgn controlGenes.$(chr).tsv -gtd GenesToDiscardHgdp.$(chr).tsv -pathTodir /samples/counts/$(chr) -chrom $(chr) -ac 1 -gt 0.5 -o samples.$(chr).filtered.tsv
 ```
 - concat all chromosomes -> allSamples.filtered.tsv
 
-#### 9. Format results with [grep.curation_nolow.R](https://github.com/ezcn/grep/tree/master/grepPipeline/scr/grep.curation_nolow.R) 
+#### 8. Format results with [grep.curation_nolow.R](https://github.com/ezcn/grep/tree/master/grepPipeline/scr/grep.curation_nolow.R) 
 
 ```
 Rscript grepPipeline/scr/grep.curation_nolow.R allSamples.filtered.tsv Grep_allsamples
