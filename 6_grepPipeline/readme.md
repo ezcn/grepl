@@ -70,7 +70,7 @@ vep --af_1kg --af_gnomad --appris --biotype --buffer_size 5000 --check_existing 
 for i in {1..22} X ; do grep -v "##" ${i}.vep.tsv > ${i}.vep.noheader.tsv; done
 for i in {1..22} X; do sed -i '/Uploaded_variatio/s/^#//g' ${i}.vep.noheader.tsv ; done
 
-#### 5. Parsing VEP annotations with [grep.csq.sql.py](https://github.com/ezcn/grep/tree/master/grepPipeline/scr/grep.csq.sql.py)` 
+#### 5. Parsing VEP annotations with [grep.csq.sql.py](https://github.com/ezcn/grep/tree/master/6_grepPipeline/scr/grep.csq.sql.py)` 
  per chromosome
  ```
  Options :
@@ -93,20 +93,53 @@ python3 /grepPipeline/scr/grep.csq.sql.py -db samples.chr22.db -i vep/samples.ch
 ```
 vcftools --gzvcf samples.chr22.vcf.gz --out $(chr)/$(id).chr22_counts  --counts --indv $(id)
 ```
-2. Change file formatting with `altCounts.py`
+2. Change file formatting with [altCounts.py](https://github.com/ezcn/grep/tree/master/6_grepPipeline/scr/altCounts.py)
 ```
-python3 [altCounts.py](https://github.com/ezcn/grep/tree/master/6_grepPipeline/scr/altCounts.py) -i /$(chr)/$(id).$(chr)_counts.frq.count -id $(id)
+-i = path to input file
+-id = sample ID
+python3 altCounts.py -i /$(chr)/$(id).$(chr)_counts.frq.count -id $(id)
 ```
 
-#### 7. Filter variable sites with [grep.filter.all.slq.py](https://github.com/ezcn/grep/tree/master/grepPipeline/scr/grep.filter.all.slq.py)`
+#### 7. Filter variable sites with [grep.filter.all.slq.py](https://github.com/ezcn/grep/tree/master/6_grepPipeline/scr/grep.filter.all.slq.py)`
 per chromosome 
 ```
-python3 grep.filter.all.slq.py -db /control/db/hgdp.$(chr).full.db -dbS /samples/db/allGrep.$(chr).db -cl control.list.txt -sl samples.list.txt -ff 0.01 -f 0.05 -type Transcript -r false -pli 0.7 -cadd 0.5 -g 2 -n 10 -i 100 -pathTodirCtrl /control/alleleCount/$(chr) -ctgn controlGenes.$(chr).tsv -gtd GenesToDiscardHgdp.$(chr).tsv -pathTodir /samples/counts/$(chr) -chrom $(chr) -ac 1 -gt 0.5 -o samples.$(chr).filtered.tsv
+Options :
+-dbC = path to control db 
+-dbS = path to control db
+-cl = list of controls IDs
+-sl = list of sampes IDs
+-ff = threshold for first frequency definition
+-f = threshold for second frequency definition
+-type = feature_type(genic , intergenic, regularoty)
+-r = value for filtering rare variants (not equal to)
+-pli = threshold for  pLI score
+-cadd = treshold for CADD score
+-g = number of gene lists
+-n = number of control individual to sample
+-i = number of iterations
+-pathTodirCtrl = path to directory with controls allele counts files
+-ctgn = path to control genes file
+-gtd = path to discarded genes file
+-pathTodir = path to directory with samples allele counts files
+-chrom = chromosome
+-ac =  allele count treshold
+-gt = threshold for gene frequency in control population
+-o =  path to output file
+ ```
+
+```
+command line example : 
+python3 scr/grep.filter.all.slq.py -db controls.chr22.db -dbS samples.chr22.db -cl testdata/con/controls_id.txt -sl testdata/sam/samples_id.txt -ff 0.01 -f 0.05 -type Transcript -r false -pli 0.7 -cadd 0.5 -g 2 -n 10 -i 100 -pathTodirCtrl /control/alleleCount/chr22 -ctgn controlGenes.chr22.tsv -gtd GenesToDiscardHgdp.chr22.tsv -pathTodir /samples/counts/chr22 -chrom chr22 -ac 1 -gt 0.5 -o samples.chr22.filtered.tsv
 ```
 - concat all chromosomes -> allSamples.filtered.tsv
 
-#### 8. Format results with [grep.curation_nolow.R](https://github.com/ezcn/grep/tree/master/grepPipeline/scr/grep.curation_nolow.R) 
-
+#### 8. Format results with [grep.curation_nolow.R](https://github.com/ezcn/grep/tree/master/6_grepPipeline/scr/grep.curation_nolow.R) 
+merge all chromosomes samples files
 ```
+Options : 
+filtered samples file
+plot and tables names prefix
+
+command line example :
 Rscript grepPipeline/scr/grep.curation_nolow.R allSamples.filtered.tsv Grep_allsamples
 ```
