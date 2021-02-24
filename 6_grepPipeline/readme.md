@@ -70,7 +70,7 @@ vep --af_1kg --af_gnomad --appris --biotype --buffer_size 5000 --check_existing 
 for i in {1..22} X ; do grep -v "##" ${i}.vep.tsv > ${i}.vep.noheader.tsv; done
 for i in {1..22} X; do sed -i '/Uploaded_variatio/s/^#//g' ${i}.vep.noheader.tsv ; done
 
-#### 5. Parsing VEP annotations with [grep.csq.sql.py](https://github.com/ezcn/grep/tree/master/6_grepPipeline/scr/grep.csq.sql.py)` 
+#### 5. Parsing VEP annotations with [grep.csq.sql.py](https://github.com/ezcn/grep/tree/master/6_grepPipeline/scr/grep.csq.sql.py)
  per chromosome
  ```
  Options :
@@ -100,7 +100,7 @@ vcftools --gzvcf samples.chr22.vcf.gz --out $(chr)/$(id).chr22_counts  --counts 
 python3 altCounts.py -i /$(chr)/$(id).$(chr)_counts.frq.count -id $(id)
 ```
 
-#### 7. Filter variable sites with [grep.filter.all.slq.py](https://github.com/ezcn/grep/tree/master/6_grepPipeline/scr/grep.filter.all.slq.py)`
+#### 7. Filter variable sites with [grep.filter.all.slq.py](https://github.com/ezcn/grep/tree/master/6_grepPipeline/scr/grep.filter.all.slq.py)
 per chromosome 
 ```
 Options :
