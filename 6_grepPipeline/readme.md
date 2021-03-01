@@ -75,11 +75,9 @@ for i in {1..22} X; do sed -i '/Uploaded_variatio/s/^#//g' ${i}.vep.noheader.tsv
  ```
  Options :
  -db = path to new sql db
- -i = path to input vep table file
+ -i = path to input vep.noheader.tsv table file
  -g = path to gene list file
  -pli = path to pLI score table
- -fathmmcoding = path to fathmm score file for coding regions
- -fathmmnc = path to fathmm score file for non-coding regions
  -o = path to output file
  ```
  
